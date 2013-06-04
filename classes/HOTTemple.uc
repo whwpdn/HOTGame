@@ -2,13 +2,11 @@ class HOTTemple Extends HOTActor
         placeable;
 
 var int Health;
-var HOTEnemyAIcontroller EnemyAI;
-var HOTTemple AT;
+var HOTPawn HPawn;
 
 simulated function PostBeginPlay()
 {
     super.PostBeginPlay();
-
 }
 event TakeDamage(int DamageAmount,Controller EventInstigator,vector HitLocation,vector Momentum, class<DamageType> DamageType,Optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 {
@@ -27,6 +25,7 @@ defaultproperties
     Health=100
     bBlockActors=True
     bCollideActors=True
+
 
     Begin Object Class=DynamicLightEnvironmentComponent Name=MyLightEnvironment
         bEnabled=True

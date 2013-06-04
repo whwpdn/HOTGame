@@ -1,13 +1,49 @@
 class HOTWeapon extends UTWeapon;
 
-simulated function AttachTo(HOTPawn OwnerPawn)
+var HOTPlayerController HPC;
+var bool canSkillX;
+var bool canSkillC;
+
+simulated function PostBeginPlay()
 {
-    if(OwnerPawn.Mesh != None)
+    super.PostBeginPlay();
+    HPC=HOTPlayerController(Instigator.Controller);
+}
+
+function changemodX()
+{
+    canSkillX=true;
+}
+
+function changemodC()
+{
+    canSkillC=true;
+}
+
+exec function XKey()
+{
+    if(HPC.CurrentLevel >=2)
     {
-        if(Mesh != None)
+        if(canSkillX==true)
         {
-            Mesh.SetShadowParent(OwnerPawn.Mesh);
-            OwnerPawn.Mesh.AttachComponentToSocket(Mesh, 'WeaponPoint');
+            `Log("XKey Function In" @HPC.CurrentLevel);
+            SetCurrentFireMode(1);
+            canSkillX=false;
+            SetTimer(6,false,'changemodX');
+        }
+    }
+}
+
+exec function CKey()
+{
+    if(HPC.CurrentLevel>=4)
+    {
+        if(canskillC==true)
+        {
+            `Log("CKey Function In");
+            SetCurrentFireMode(2);
+            canSkillC=false;
+            SetTimer(9,false,'changemodC');
         }
     }
 }
@@ -15,19 +51,20 @@ simulated function AttachTo(HOTPawn OwnerPawn)
 simulated function StartFire(byte FireModeNum)
 {
     ProjectileFire();
+    SetCurrentFireMode(0);
 }
 
 simulated function Projectile ProjectileFire()
 {
     local vector  RealStartLoc;
     local Projectile SpawnedProjectile;
-    
+
     IncrementFlashCount();
 
     if(Role == ROLE_Authority)
     {
         RealStartLoc = GetPhysicalFireStartLoc();
-        SpawnedProjectile = Spawn(WeaponProjectiles[0],,, RealStartLoc);
+        SpawnedProjectile = Spawn(GetProjectileClass(),,, RealStartLoc);
         if(SpawnedProjectile != None && !SpawnedProjectile.bDeleteMe)
         {
             SpawnedProjectile.Init(Vector(GetAdjustedAim(RealStartLoc)));
@@ -36,24 +73,30 @@ simulated function Projectile ProjectileFire()
     }
     return None;
 }
+
 defaultproperties
 {
-    WeaponFireTypes(0)=EWFT_Projectile
+    canSkillX=true;
+    canSkillC=true;
+    AttachmentClass=class'HOTGame.HOTWeaponAttachment'
 
-    WeaponProjectiles(0)=class'HOTPawnProjectile'
+    WeaponFireTypes(0)=EWFT_Projectile
+    WeaponProjectiles(0)=class'HOTLinkPlasma'
     WeaponProjectiles(1)=class'HOTPawnProjectile'
+    WeaponProjectiles(2)=class'UTProj_ShockBall'
+
     Begin Object class=AnimNodeSequence Name=MeshSequenceA
     End Object
 
-    Begin Object Class=UDKSkeletalMeshComponent Name=FirstPersonMesh1
+    Begin Object Name=FirstPersonMesh
         SkeletalMesh=SkeletalMesh'WP_ShockRifle.Mesh.SK_WP_ShockRifle_1P'
         AnimSets(0)=AnimSet'WP_ShockRifle.Anim.K_WP_ShockRifle_1P_Base'
         Animations=MeshSequenceA
         Translation=(X=8.0,Y=-13.0,Z=8.0)
         Scale=0.5
     End Object
+    Mesh=FirstPersonMesh
 
-    Mesh=FirstPersonMesh1
     FiringStatesArray(0)=WeaponFiring
     FiringStatesArray(1)=WeaponFiring
 }

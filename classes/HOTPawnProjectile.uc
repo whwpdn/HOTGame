@@ -55,6 +55,6 @@ defaultproperties
     Speed=1000
     MaxSpeed=15000
     AccelRate=16000.0
-    Damage=5
-    DamageRadius=0
+    Damage=10
+    DamageRadius=60
 }

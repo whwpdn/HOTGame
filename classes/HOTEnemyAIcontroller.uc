@@ -1,13 +1,14 @@
 class HOTEnemyAIcontroller extends AIController;
 
 var() Vector TempDest;
-var Actor Target;
+
 var float AttackDistance;
 var float MovementSpeed;
 var vector NewLocation;
 var HOTEnemyRocket RocketAttack;
 var HOTEnemyWeapon EnemyWeaponGun;
 var HOTTemple AT;
+var HOTTemple tmp;
 //That's in our AI Controller
 
 event Possess(Pawn inPawn, bool bVehicleTransition)
@@ -22,21 +23,18 @@ function GetEnemy()
 {
     foreach DynamicActors(class'HOTTemple',AT){
         if(AT != none){
-                        `log("Pawn"@Pawn);
-                                                `log("AT"@AT);
-                   Target = AT;
+            tmp=AT;
         }
    }
 }
 function Attack()
 {
-    if(Target ==none){
+    if(tmp.Health <=0){
         ClearTimer('Attack');
         GoToState('Idle');
     }
     else{
-        RocketAttack = Spawn(class'HOTEnemyRocket',self,,Pawn.Location);
-        RocketAttack.Init(normal(Target.Location-Pawn.Location));
+        HOTEnemy(Pawn).W.AttackTemple(1);
     }
 }
 state Idle
@@ -58,31 +56,31 @@ auto state Seeking
         NavigationHandle.PathConstraintList = none;
         NavigationHandle.PathGoalList = none;
 
-        class'NavMeshPath_Toward'.static.TowardGoal(NavigationHandle,Target);
-        class'NavMeshGoal_At'.static.AtActor(NavigationHandle,Target,32,true);
+        class'NavMeshPath_Toward'.static.TowardGoal(NavigationHandle,tmp);
+        class'NavMeshGoal_At'.static.AtActor(NavigationHandle,tmp,32,true);
 
         return NavigationHandle.FindPath();
     }
 
 Begin:
-    if(NavigationHandle.ActorReachable(Target))
+    if(NavigationHandle.ActorReachable(tmp))
     {
         FlushPersistentDebugLines();
 
-        MoveToward(Target,Target,300);
-        if(VSize(Pawn.Location - Target.Location) < AttackDistance)
+        MoveToward(tmp,tmp,300);
+        if(VSize(Pawn.Location - tmp.Location) < AttackDistance)
         {
             GoToState('Attacking');
         }
     }
     else if(FindNavMeshPath())
     {
-        NavigationHandle.SetFinalDestination(Target.Location);
+        NavigationHandle.SetFinalDestination(tmp.Location);
         FlushPersistentDebugLines();
 
         if(NavigationHandle.GetNextMoveLocation(TempDest,Pawn.GetCollisionRadius()))
         {
-            MoveTo(TempDest,Target);
+            MoveTo(TempDest,tmp);
         }
     }
 
@@ -96,8 +94,6 @@ state Attacking
 {
     function Tick(float DeltaTime)
     {
-        if(Target ==none)
-                GotoState('Idle');
     }
     function BeginState(Name PreviousStateName)
     {

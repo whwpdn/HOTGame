@@ -5,18 +5,24 @@ var Actor Enemy;
 var float MovementSpeed;
 var float AttackDistance;
 var HOTEnemyAIcontroller EAIController;
+var HOTEnemyWeapon W;
 
 simulated function PostBeginPlay()
 {
     super.PostBeginPlay();
 
     SpawnDefaultcontroller();
+    W = spawn(class'HOTEnemyWeapon');
+    W.AttachTo(self);
+    Weapon = W;
 
 }
 event TakeDamage(int DamageAmount, Controller EventInstigator, vector HitLocation, vector Momentum, class<DamageType> DamageType, optional TraceHitInfo HitInfo, optional Actor DamageCauser)
 {
     Health -= DamageAmount;
-    if(Health<=0){
+    if(Health<=0)
+    {
+        HOTPlayerController(EventInstigator).getExperience(1);
         Destroy();
         if(EventInstigator != none && EventInstigator.PlayerReplicationInfo != none)
             WorldInfo.Game.ScoreObjective(EventInstigator.PlayerReplicationInfo, 1);
@@ -25,7 +31,7 @@ event TakeDamage(int DamageAmount, Controller EventInstigator, vector HitLocatio
 
 defaultproperties
 {
-    Health=5
+    Health=30
     Begin Object Name=CollisionCylinder
     CollisionHeight=+44.000000
     end object

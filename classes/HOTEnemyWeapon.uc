@@ -1,7 +1,22 @@
 class HOTEnemyWeapon extends UDKWeapon;
 
+simulated function AttachTo(UTPawn OwnerPawn)
+{
+	if (OwnerPawn.Mesh != None)
+	{
+		// Attach Weapon mesh to player skelmesh
+		if ( Mesh != None )
+		{
+			// Weapon Mesh Shadow
+			Mesh.SetShadowParent(OwnerPawn.Mesh);
+			Mesh.SetLightEnvironment(OwnerPawn.LightEnvironment);
 
-function AttackToTemple(){
+			OwnerPawn.Mesh.AttachComponentToSocket(Mesh, 'WeaponPoint');
+		}
+	}
+}
+function AttackTemple(byte FireModeNum){
+    `log("asdf");
     ProjectileFire();
 }
 
